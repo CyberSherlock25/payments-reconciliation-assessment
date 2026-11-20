@@ -12,7 +12,7 @@
 - [x] Production-risk sentences: `docs/PRODUCTION_RISKS.md`
 - [x] Assumptions: `docs/ASSUMPTIONS.md`
 - [x] Source code and Dockerfile
-- [ ] Deployed URL
+- [x] Deployed URL: https://payments-reconciliation-assessment.onrender.com/
 - [ ] Demo video
 - [x] Code ZIP: `submission_source_code.zip`
 

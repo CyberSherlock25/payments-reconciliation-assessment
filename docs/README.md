@@ -21,7 +21,7 @@ docker build -t payments-reconciliation .
 docker run -p 8000:8000 payments-reconciliation
 ```
 
-For Render, create a Docker web service and use port `8000`. A deployed URL can be added here: **[deployed URL placeholder]**.
+For Render, create a Docker web service and use port `8000`. Deployed application: **https://payments-reconciliation-assessment.onrender.com/**
 
 ## Architecture
 
@@ -31,4 +31,3 @@ For Render, create a Docker web service and use port `8000`. A deployed URL can 
 4. `static/index.html` is a no-build vanilla dashboard with Chart.js from a CDN.
 5. CSV files are the only persistence; each request processes data in memory.
 6. Tests cover each gap category, edge cases, determinism, and generated-data recall/precision.
-
