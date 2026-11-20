@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payments Reconciliation</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <style>
+    body{font:14px system-ui;margin:0;background:#f5f7fb;color:#172033}main{max-width:1180px;margin:auto;padding:24px}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card,section{background:white;border:1px solid #e4e8f0;border-radius:10px;padding:16px;margin:14px 0}.value{font-size:24px;font-weight:700}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid #edf0f5}th{color:#536078}.muted{color:#68758d}.error{color:#ad1f1f}.pill{padding:3px 7px;border-radius:10px;background:#eef2ff}
+    input,button{padding:8px;border:1px solid #cbd3e1;border-radius:6px}button{background:#243b7a;color:white;cursor:pointer}.toolbar{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body><main>
+  <h1>Payments reconciliation</h1><p class="muted">October 2026 · INR · UTC cutoff</p>
+  <div class="cards" id="cards"></div>
+  <section><h2>Why the books differ</h2><canvas id="bridge" height="90"></canvas></section>
+  <section><h2>Gap categories</h2><table><thead><tr><th>Category</th><th>Count</th><th>Amount</th></tr></thead><tbody id="categories"></tbody></table></section>
+  <section><h2>Exceptions</h2><div class="toolbar"><input id="filter" placeholder="Filter ID, category, reason"><a href="/api/export.csv">Export CSV</a></div>
+    <table><thead><tr><th>ID</th><th>Category</th><th>Amount</th><th>Reason</th><th>Suggested action</th></tr></thead><tbody id="exceptions"></tbody></table></section>
+  <section><h2>Assumptions</h2><ul><li>INR, October 2026, UTC timestamps and cutoff.</li><li>Platform precision is 3 decimals; bank lines are half-up rounded to 2 decimals.</li><li>Settlement lag is 1–2 days; weekends move to the next business day.</li><li>Gross settlement; fees are intentionally out of scope.</li><li>Full refunds only; month cut uses platform transaction date and bank settlement date.</li><li>Line tolerance is INR 0.01; aggregate residual is reported as rounding drift.</li></ul></section>
+  <section><h2>Ground truth check</h2><div id="truth" class="pill"></div></section>
+  <section><h2>Upload two CSVs</h2><form id="upload"><input type="file" name="platform_file" accept=".csv" required><input type="file" name="bank_file" accept=".csv" required><button>Reconcile upload</button></form><p id="message"></p></section>
+</main>
+<script>
+let data; const money=x=>`₹${Number(x).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+async function load(url='/api/reconcile', options){const r=await fetch(url,options); if(!r.ok) throw Error((await r.json()).detail||'Request failed'); data=await r.json(); render();}
+function render(){const s=data.summary; cards.innerHTML=[['Platform total',s.platform_total],['Bank total',s.bank_total],['Difference',s.difference],['Matched',s.matched_percent+'%']].map(x=>`<div class="card"><div class="muted">${x[0]}</div><div class="value">${x[0]=='Matched'?x[1]:money(x[1])}</div></div>`).join('');
+categories.innerHTML=data.categories.map(x=>`<tr><td><span class="pill">${x.category}</span></td><td>${x.count}</td><td>${money(x.amount)}</td></tr>`).join(''); draw();
+function list(){const q=filter.value.toLowerCase(); exceptions.innerHTML=data.exceptions.filter(x=>(x.id+x.category+x.reason).toLowerCase().includes(q)).map(x=>`<tr><td>${x.id}</td><td>${x.category}</td><td>${money(x.amount)}</td><td>${x.reason}</td><td>${x.suggested_action}</td></tr>`).join('')} list(); filter.oninput=list;
+truth.textContent=data.ground_truth?`Planted ${data.ground_truth.planted}; detected ${data.ground_truth.detected}; recall ${data.ground_truth.recall_percent}%; precision ${data.ground_truth.precision_percent}%`:'Uploaded dataset (no ground truth file).';}
+function draw(){if(window.chart)chart.destroy(); chart=new Chart(document.getElementById('bridge'),{type:'bar',data:{labels:data.bridge.map(x=>x.label),datasets:[{label:'INR',data:data.bridge.map(x=>x.amount),backgroundColor:'#4969c6'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false}}}})}
+upload.onsubmit=async e=>{e.preventDefault();message.textContent='';try{await load('/api/reconcile/upload',{method:'POST',body:new FormData(upload)});message.textContent='Upload reconciled.'}catch(err){message.className='error';message.textContent=err.message}};
+load().catch(e=>message.textContent=e.message);
+</script></body></html>

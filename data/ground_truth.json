@@ -1,0 +1,75 @@
+{
+  "seed": 202610,
+  "gaps": [
+    {
+      "type": "ROUNDING_DRIFT",
+      "ids": [
+        "aggregate"
+      ],
+      "amount": "-1.00"
+    },
+    {
+      "type": "TIMING_DIFFERENCE",
+      "ids": [
+        "txn_0996"
+      ],
+      "amount": "300.000"
+    },
+    {
+      "type": "TIMING_DIFFERENCE",
+      "ids": [
+        "txn_0997"
+      ],
+      "amount": "325.000"
+    },
+    {
+      "type": "TIMING_DIFFERENCE",
+      "ids": [
+        "txn_0998"
+      ],
+      "amount": "350.000"
+    },
+    {
+      "type": "TIMING_DIFFERENCE",
+      "ids": [
+        "txn_0999"
+      ],
+      "amount": "375.000"
+    },
+    {
+      "type": "DUPLICATE",
+      "ids": [
+        "set_duplicate"
+      ],
+      "amount": "126.00"
+    },
+    {
+      "type": "DUPLICATE",
+      "ids": [
+        "txn_duplicate"
+      ],
+      "amount": "150.995"
+    },
+    {
+      "type": "ORPHAN_REFUND",
+      "ids": [
+        "refund_orphan"
+      ],
+      "amount": "-75.000"
+    },
+    {
+      "type": "ORPHAN_SETTLEMENT",
+      "ids": [
+        "orphan_settlement"
+      ],
+      "amount": "123.45"
+    },
+    {
+      "type": "AMOUNT_MISMATCH",
+      "ids": [
+        "txn_0030"
+      ],
+      "amount": "5.00"
+    }
+  ]
+}

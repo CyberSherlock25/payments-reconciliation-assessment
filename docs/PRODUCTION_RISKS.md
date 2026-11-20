@@ -1,0 +1,2 @@
+This demo ignores fees, many-to-one batch payouts, partial refunds, chargebacks, reversals, FX, and provider-specific settlement semantics, so production classifications could be wrong. Timezone/cutoff differences, late corrections, and scale or streaming requirements would need a stronger ingestion and audit design. It also has no authentication, authorization, durable audit trail, or operational controls.
+
