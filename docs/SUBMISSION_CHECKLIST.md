@@ -14,7 +14,7 @@
 - [x] Source code and Dockerfile
 - [ ] Deployed URL
 - [ ] Demo video
-- [ ] Code ZIP
+- [x] Code ZIP: `submission_source_code.zip`
 
 ## Remaining Human Actions
 
