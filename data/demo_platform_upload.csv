@@ -1,0 +1,4 @@
+txn_id,created_at,amount,currency,type,original_txn_id,status,customer_id
+demo_sale_001,2026-10-10T10:00:00Z,499.995,INR,SALE,,SUCCESS,customer_001
+demo_sale_002,2026-10-31T23:59:59Z,250.000,INR,SALE,,SUCCESS,customer_002
+demo_refund_001,2026-10-20T12:00:00Z,-75.000,INR,REFUND,demo_missing_original,SUCCESS,customer_003

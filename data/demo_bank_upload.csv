@@ -1,0 +1,3 @@
+settlement_id,bank_ref,settled_at,amount,batch_id,customer_id
+demo_settle_001,utr:demo_sale_001,2026-10-11T10:00:00Z,500.00,batch_20261011,customer_001
+demo_settle_002,utr:demo_sale_002,2026-11-01T00:00:00Z,250.00,batch_20261101,customer_002
