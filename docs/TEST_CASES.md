@@ -1,118 +1,121 @@
 
 # ReconX — Test Cases
 
-## Test Environment
-- Application: ReconX
-- Reporting Period: November 2026
+## Environment
+
+- Reporting period: October 2026
 - Currency: INR
-- Testing Framework: Pytest
-- Test Data: Synthetic CSV datasets
+- Testing framework: pytest
+- Test data: Hand-written fixtures and deterministic generated CSV data
 
-## TC-01: Normal Transaction Matching
+## TC-01: Exact Decimal Match
 
-Input:
-A platform transaction has a matching bank settlement
-with the same transaction reference and amount.
+Input: Platform amount `0.300` and bank amount `0.30` for transaction `t1`.
 
-Expected Result:
-Transaction should be classified as MATCHED.
+Expected: One matched line and a `0.00` residual.
 
-Actual Result:
-[Fill after running the test]
+Actual: `tests/test_smoke.py` passes with `matched_lines == 1` and residual `0.00`.
 
-Status:
-[PASS / FAIL]
+Status: PASS
 
-## TC-02: Late Settlement
+## TC-02: Timing Difference
 
-Input:
-A November 30 transaction is settled on December 1.
+Input: An October 31 platform transaction settled on November 1.
 
-Expected Result:
-Transaction should be classified as LATE_SETTLEMENT
-or next-month settlement.
+Expected: `TIMING_DIFFERENCE`.
 
-Actual Result:
-[Fill after running the test]
+Actual: Passing timing fixture is covered by `tests/test_gaps.py`.
 
-Status:
-[PASS / FAIL]
+Status: PASS
 
-## TC-03: Cumulative Rounding Difference
+## TC-03: Aggregate Rounding Difference
 
-Input:
-Multiple transactions have individual rounding
-differences within the configured tolerance,
-but their combined difference exceeds that tolerance.
+Input: Many matched lines have bank-rounded amounts and a visible aggregate residual.
 
-Expected Result:
-Individual differences and aggregate differences
-should be reported accurately.
+Expected: Lines remain matchable within tolerance and aggregate drift is reported.
 
-Actual Result:
-[Fill after running the test]
+Actual: Generated reconciliation reports `ROUNDING_DRIFT` and the bridge has an unexplained residual of `0.00`.
 
-Status:
-[PASS / FAIL]
+Status: PASS
 
-## TC-04: Duplicate Settlement
+## TC-04: Duplicate IDs
 
-Input:
-The bank settlement dataset contains a duplicate
-settlement reference.
+Input: Duplicate settlement IDs and duplicate platform IDs.
 
-Expected Result:
-Duplicate record should be identified and
-must not be counted twice.
+Expected: Both records are reported as `DUPLICATE` and excluded from matching.
 
-Actual Result:
-[Fill after running the test]
+Actual: Duplicate fixtures pass; generated truth includes duplicate gaps.
 
-Status:
-[PASS / FAIL]
+Status: PASS
 
 ## TC-05: Orphan Refund
 
-Input:
-A refund references an original transaction
-that does not exist in the platform dataset.
+Input: A refund references a missing original transaction.
 
-Expected Result:
-Refund should be classified as ORPHAN_REFUND.
+Expected: `ORPHAN_REFUND`.
 
-Actual Result:
-[Fill after running the test]
+Actual: Passing orphan-refund fixture and generated dataset detection.
 
-Status:
-[PASS / FAIL]
+Status: PASS
 
-## TC-06: Missing Settlement
+## TC-06: Missing or Orphan Settlement
 
-Input:
-A platform transaction has no corresponding
-bank settlement within the checked settlement window.
+Input: A bank settlement has no platform transaction.
 
-Expected Result:
-Transaction should be flagged as missing or pending,
-depending on the reporting cutoff and settlement window.
+Expected: `ORPHAN_SETTLEMENT`.
 
-Actual Result:
-[Fill after running the test]
+Actual: Passing orphan-settlement fixture and generated dataset detection.
 
-Status:
-[PASS / FAIL]
+Status: PASS
 
-## TC-07: Invalid CSV
+## TC-07: Invalid or Empty CSV
 
-Input:
-Upload a CSV file with missing required columns.
+Input: Header-only platform or bank upload.
 
-Expected Result:
-Application should reject the file with a
-clear validation message.
+Expected: HTTP 400 with a clear message.
 
-Actual Result:
-[Fill after running the test]
+Actual: `test_empty_upload_is_clear_error` passes and reports an at-least-one-data-row error.
 
-Status:
-[PASS / FAIL]
+Status: PASS
+
+## TC-08: Malformed Amount
+
+Input: Platform amount `not-money`.
+
+Expected: Malformed row is reported and reconciliation does not crash.
+
+Actual: `malformed_count == 1`.
+
+Status: PASS
+
+## TC-09: Ambiguous Fallback
+
+Input: Two platform rows qualify for one garbled bank reference.
+
+Expected: `NEEDS_REVIEW`; no silent match.
+
+Actual: Reconciliation keeps the bank unmatched and reports review.
+
+Status: PASS
+
+## TC-10: Deterministic Shuffle
+
+Input: The same datasets in a different row order.
+
+Expected: Identically sorted reconciliation output.
+
+Actual: Repeated reconciliation in the test suite produces identical results.
+
+Status: PASS
+
+## Final Verification
+
+```text
+8 passed, 22 warnings in 0.80s
+```
+
+Generated ground truth:
+
+```text
+planted 10 detected 10 missing [] bridge_residual 0.00
+```
